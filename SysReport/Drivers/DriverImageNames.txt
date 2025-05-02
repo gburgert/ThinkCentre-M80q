@@ -1,0 +1,35 @@
+AMI USB Driver
+AMI NTFS Driver
+Intel(R) Gigabit 0.0.29
+Intel(R) PRO/1000 8.7.10 PCI-E
+Serial ATA Controller Initialization Driver
+Generic Disk I/O Driver
+Partition Driver(MBR/GPT/El Torito)
+PCI Serial Driver
+Integrated Touch Driver
+Ami HID keyboard Driver
+Ami HID Absolute Pointer
+Ami HID Simple Pointer
+FAT File System Driver
+AMI SDIO Driver
+ARP Network Service Driver
+Simple Network Protocol Driver
+MNP Network Service Driver
+UEFI PXE Base Code Driver
+TCP Network Service Driver
+VLAN Configuration Driver
+UEFI HTTP Boot Driver
+HttpDxe
+DNS Network Service Driver
+DHCP Protocol Driver
+IP4 Network Service Driver
+MTFTP4 Network Service
+UDP Network Service Driver
+DHCP6 Protocol Driver
+IP6 Network Service Driver
+MTFTP6 Network Service Driver
+UDP6 Network Service Driver
+Intel UEFI WLAN Driver
+Intel(R) GOP Driver [9.0.1107]
+HFS File System Driver
+APFS

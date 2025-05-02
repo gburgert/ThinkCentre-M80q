@@ -1,9 +1,6 @@
 # ThinkCentre-M80q Ventura  
-05/05/2024  
+05/05/2023  
 Model 316C  
-  
-Seguindo as instruções de https://dortania.github.io/OpenCore-Install-Guide/macos-limits.html#cpu-support  
-
   
 ## Levantar a conf do sistema  
 https://github.com/KernelWanderers/OCSysInfo/releases  
@@ -214,10 +211,10 @@ OBS: depois de algumas tentativas parou de funcionar. Troquei de usb aí voltou.
 #######################################################
 
 Gathering info...
- - Got OpenCore-0.5.9-RELEASE.zip
+ - Got OpenCore-1.0.4-RELEASE.zip
 Downloading...
 Downloaded 2.62 MB of 2.62 MB (100.00%)
-Extracting OpenCore-0.5.9-RELEASE.zip...
+Extracting OpenCore-1.0.4-RELEASE.zip...
 Gathering DUET boot files...
  - boot
  - boot0
@@ -238,7 +235,12 @@ quit
 https://dortania.github.io/OpenCore-Install-Guide/installer-guide/opencore-efi.html  
 Essa parte é no Windows, na máquina que vai receber o MacOS.  
 
-Copiar OpenCore-1.0.4-DEBUG/X64/EFI. Daqui pra frente usa a cópia dessa pasta.  
+Copiar OpenCore-1.0.4-DEBUG\X64\EFI. Daqui pra frente usa a cópia dessa pasta. 
+Arquivos importantes:  
+
+    EFI\OC\OpenCore.efi  
+    EFI\OC\config.plist  
+  
 ### Drivers  
 **Drivers Opencore**  
 --> em EFI\OC\Drivers deixa ResetNvramEntry.efi, OpenRuntime.efi  
@@ -270,7 +272,7 @@ https://github.com/acidanthera/AppleALC/releases
   
 **Rede Intel**   
 https://github.com/acidanthera/IntelMausi/releases  
---> fica com IntelMausi.kext  
+--> fica com IntelMausi.kext (não sei pra que serve o IntelSnowMausi)  
   
 **kexts usb**   
 https://github.com/USBToolBox/kext  
@@ -280,15 +282,22 @@ https://github.com/USBToolBox/kext
 https://github.com/acidanthera/NVMeFix/releases  
 --> fica com NVMeFix.kext  
   
+**kext sata unsupported**  
+https://github.com/dortania/OpenCore-Install-Guide/blob/master/extra-files/CtlnaAHCIPort.kext.zip
+--> CtlnaAHCIPort.kext
+  
 **kexts bluetooth**  
-https://openintelwireless.github.io/IntelBluetoothFirmware/FAQ.html#what-additional-steps-should-i-do-to-make-bluetooth-work-on-macos-monterey-and-newer  
+https://openintelwireless.github.io/IntelBluetoothFirmware/  
 --> IntelBTPatcher.kext  
 --> IntelBluetoothFirmware.kext  
 --> remove IntelBluetoothInjector.kext  
+
+https://github.com/acidanthera/BrcmPatchRAM  
 --> BlueToolFixup.kext  
   
 **kexts wifi**  
-Airport  
+https://github.com/OpenIntelWireless/itlwm/releases/tag/v2.3.0  
+--> AirportItlwm.kext  
 
 ### ACPI para Cometlake 
 https://dortania.github.io/Getting-Started-With-ACPI/ssdt-methods/ssdt-prebuilt.html#desktop-comet-lake  
@@ -297,22 +306,17 @@ https://dortania.github.io/Getting-Started-With-ACPI/Universal/plug.html
 https://dortania.github.io/Getting-Started-With-ACPI/Universal/ec-fix.html  
 https://dortania.github.io/Getting-Started-With-ACPI/Universal/awac.html  
 https://dortania.github.io/Getting-Started-With-ACPI/Universal/rhub.html  
-  
+   
 ## Montar o config.plist  
 ```
 cd hackintosh
-copy .\OpenCore-0.9.1-RELEASE\Docs\Sample.plist .\config.plist
+copy .\OpenCore-1.0.4-DEBUG\Docs\Sample.plist .\EFI\OC\config.plist
 ```
 
 Abrir propertree, abrir config.plist  
 -> File -> OC Clean Snapshot  
-Apontar para o pendrive /EFI/OC (eu fui montando o pendrive apesar de não estar indicado)
+Apontar para /EFI/OC que está sendo montado
 https://dortania.github.io/OpenCore-Install-Guide/config.plist/comet-lake.html#starting-point  
-
-    Root->ACPI
-    --> desabilitei SSDT-RHUB.aml
-    --> desabilitei DDAT-AWAC.aml  
-.  
 
     Root->Booter->Quirks
       DevirtualiseMmio:True
@@ -321,19 +325,17 @@ https://dortania.github.io/OpenCore-Install-Guide/config.plist/comet-lake.html#s
       RebuildAppleMemoryMap:True
       ResizeAppleGpuBars:-1
       SetupVirtualMap:False
-      SyncRuntimePermissions:True
-.  
+      SyncRuntimePermissions:True 
   
 Root->DeviceProperties  
 Verificar https://github.com/acidanthera/WhateverGreen/blob/master/Manual/FAQ.IntelHD.en.md#intel-uhd-graphics-610-655-coffee-lake-and-comet-lake-processors  
 device-id 0x9BC5 -> está na lista de suportado. Não precisa de framebuffer.  
 Vou deixar vazio, mas se precisar está aqui  
 AAPL,ig-platform-id 	data 00009B3E 	Alternative to 07009B3E if it doesn't work  
-.
 
-    Root->Kernel  
-      AppleXcpmCfgLock 	YES 	Not needed if CFG-Lock is disabled in the BIOS  
-      DisableIoMapper 	YES 	Not needed if VT-D is disabled in the BIOS  
+    Root->Kernel->Quirks  
+      AppleXcpmCfgLock 	True 	Not needed if CFG-Lock is disabled in the BIOS  
+      DisableIoMapper 	False 	Not needed if VT-D is disabled in the BIOS  
       LapicKernelPanic: False  
       PanicNoKextDump: True  
       PowerTimeoutKernelPanic: True  
@@ -342,12 +344,13 @@ AAPL,ig-platform-id 	data 00009B3E 	Alternative to 07009B3E if it doesn't work
   
     Root->Misc
       Boot->HideAuxiliary:True
-      ->Debug
+      Debug
         AppleDebug 	YES
         ApplePanic 	YES
         DisableWatchDog 	YES
         Target 	67
-      ->Security
+        Sysreport True
+      Security
         AllowSetDefault: YES 	
         BlacklistAppleUpdate: YES 	
         ScanPolicy: 0 	
@@ -462,7 +465,7 @@ Escolhi o type c com switch, tipo 9
 --> k para gerar o UTBMap.kext  
 --> b, b, q  
 ```
-Copiar o kext no EFI e arrumar o config.plist  
+Copiar o UTBMap.kext no EFI/Kexts e adicionar no config.plist. Em root->kernel->add encontrar o UTBDefault.kext e colocar em false.  
   
 ### Mapeamento de porta HDMI - Intel(R) UHD Graphics 630  
 https://dortania.github.io/OpenCore-Post-Install/gpu-patching/intel-patching/busid.html  
@@ -534,8 +537,7 @@ Root->DeviceProperties->Add
         framebuffer-con2-alldata | Data | `03040800 00040000 C7030000`
 
 ```
-
-## Polimentos  
+\
 **Arrumar o som**  
 config.plist: Root->nvram->add->7C..82->boot-args  
 --> adicionar alcid=16  
@@ -566,6 +568,7 @@ Device (_SB.PCI0.SBUS.BUS0) <- Rename this
 ```  
 Opa! O nome já bate com a tabela. Não precisa desse patch.  
   
+## Polimentos  
 **Pin bluetooth to menu bar**  
 https://www.iphonetricks.org/add-bluetooth-icon-to-menu-bar-macos-ventura/  
 --> engrenagem -> control center -> bluetooth -> show in menu bar  
