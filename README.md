@@ -676,5 +676,6 @@ Limpar MLB, SystemSerialNumber, SystemUUID. Agora é comitar as mudanças no git
 cd ~/hackintosh/ThinkCentre-M80q
 git status
 git add -A
-git commit -
+git commit -m "upgrade OC 1.07 & kexts"
+git push
 ```
