@@ -287,7 +287,7 @@ https://github.com/dortania/OpenCore-Install-Guide/blob/master/extra-files/Ctlna
 --> CtlnaAHCIPort.kext
   
 **kexts bluetooth**  
-https://openintelwireless.github.io/IntelBluetoothFirmware/  
+https://github.com/lshbluesky/IntelBluetoothFirmware  
 --> IntelBTPatcher.kext  
 --> IntelBluetoothFirmware.kext  
 --> remove IntelBluetoothInjector.kext  
@@ -603,11 +603,6 @@ brew install --cask microsoft-teams
 ```
 brew install --cask whatsapp
 ```
-**Citrix Workspace**  
-https://www.citrix.com/downloads/workspace-app/mac/workspace-app-for-mac-latest.html  
-```
-brew install --cask citrix-workspace
-```
 **Speedtest Ookla**  
 https://www.speedtest.net/apps/mac  
 
@@ -623,10 +618,6 @@ brew install MonitorControl
 **Remote Desktop**  
 ```
 brew install --cask microsoft-remote-desktop
-```
-**Sequel Ace**  
-```
-brew install --cask sequel-ace
 ```
 **Openvpn connect**  
 ```
@@ -652,4 +643,38 @@ mkdir tmp; cd tmp
 wget https://github.com/apache/cloudstack-cloudmonkey/releases/download/6.4.0/cmk.darwin.x86-64
 chmod +x cmk.darwin.x86-64
 mv cmk.darwin.x86-64 /usr/local/bin/cmk
+```
+## Opencore Update
+Basicamente refaço o roteiro atualizando os arquivos do opencore e kexts. O lilo acompanha a atualização do opencore e precisa ser atualizado junto. Formata um pendrive com GPT pra ter partição EFI pra testar o boot novo.  
+
+Primeiro ver se o github ainda funciona:
+```
+cd ~/hackintosh/ThinkCentre-M80q
+ssh -T git@github.com
+Hi gburgert! You've successfully authenticated, but GitHub does not provide shell access.
+```
+Se der erro conserta primeiro. Depois:
+```
+git fetch --all
+git status
+```
+O que aparecer é arquivo que não está no repositório. Deleta ou coloca no gitignore.  
+Joga os zips baixados na pasta kexts. Abre no tmp e leva o que atualizou para as pastas no EFI em ~/hackintosh/ThinkCentre-M80q. Para atualizar o config.plist:  
+```
+cd ~/hackintosh/ThinkCentre-M80q/tmp/OpenCore-1.0.7-RELEASE/Utilities/ocvalidate
+./ocvalidade ../../../../EFI/OC/config.plist
+~/MountEFI/MountEFI.command
+```
+Copia a nova pasta EFI pra lá. Esse pendrive fará o próximo boot. Se der certo, MountEFI no nvme, salva o EFI antigo e copia esse lá. Antes de mandar pro git, arruma o config.plist:
+```
+cd ~/hackintosh/ThinkCentre-M80q/EFI/OC
+cp config.plist config-semserial.plist
+open /Applications/ProperTree.app config-semserial.plist
+```
+Limpar MLB, SystemSerialNumber, SystemUUID. Agora é comitar as mudanças no git.
+```
+cd ~/hackintosh/ThinkCentre-M80q
+git status
+git add -A
+git commit -
 ```
